@@ -39,8 +39,6 @@ function App() {
         alert('Server stopped');
     };
 
-
-
     // Render the component
     return (
         <div>
