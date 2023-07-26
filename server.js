@@ -1,4 +1,3 @@
-// Import necessary modules
 const express = require('express');
 const Docker = require('dockerode');
 const cors = require('cors');
@@ -13,7 +12,6 @@ const port = 3000;
 
 app.use(cors());
 
-// Set up a new Socket.IO server with CORS enabled for the React app's origin
 const io = new Server(server, {
     cors: {
         origin: 'http://localhost:3001',
@@ -21,43 +19,39 @@ const io = new Server(server, {
     }
 });
 
-// Define the /start route
-app.get('/start', async (req, res) => {
-    // Get the Docker container
-    const container = docker.getContainer('8cbc8b8cc245');
-
-    // Start the container
+export async function startServer(container) {
     await container.start();
+    return 'Server started';
+}
 
-    // Send a response back to the client
-    res.send('Server started');
-});
-
-// Define the /stop route
-app.get('/stop', async (req, res) => {
-    // Get the Docker container
-    const container = docker.getContainer('8cbc8b8cc245');
-
-    // Stop the container
+export async function stopServer(container) {
     await container.stop();
+    return 'Server stopped';
+}
 
-    // Send a response back to the client
-    res.send('Server stopped');
-});
-
-// Define the /status route
-app.get('/status', async (req, res) => {
-    // Get the Docker container
-    const container = docker.getContainer('8cbc8b8cc245');
-
-    // Inspect the container to get its current state
+export async function getServerStatus(container) {
     const data = await container.inspect();
+    return { status: data.State.Running ? "Running" : "Stopped" };
+}
 
-    // Send a response back to the client with the current status of the server
-    res.json({ status: data.State.Running ? "Running" : "Stopped" });
+app.get('/start', async (req, res) => {
+    const container = docker.getContainer('8cbc8b8cc245');
+    const message = await startServer(container);
+    res.send(message);
 });
 
-// Listen for connections from clients
+app.get('/stop', async (req, res) => {
+    const container = docker.getContainer('8cbc8b8cc245');
+    const message = await stopServer(container);
+    res.send(message);
+});
+
+app.get('/status', async (req, res) => {
+    const container = docker.getContainer('8cbc8b8cc245');
+    const status = await getServerStatus(container);
+    res.json(status);
+});
+
 io.on('connection', (socket) => {
     console.log('a user connected');
 
@@ -95,7 +89,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// Start the server and listen for requests on the specified port
 server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
