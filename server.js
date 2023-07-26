@@ -59,55 +59,33 @@ app.get('/status', async (req, res) => {
 
 // Listen for connections from clients
 io.on('connection', (socket) => {
-    // Log when a user connects
     console.log('a user connected');
 
-    // Listen for 'getLogs' events from clients
-    socket.on('getLogs', async () => {
-        console.log('Received getLogs event');
+    const container = docker.getContainer('8cbc8b8cc245');
+    const logStream = new stream.PassThrough();
 
-        // Create a PassThrough stream to collect the logs
-        var logStream = new stream.PassThrough();
+    logStream.on('data', (chunk) => {
+        socket.emit('logs', chunk.toString('utf8'));
+    });
 
-        // Get the Docker container
-        const container = docker.getContainer('8cbc8b8cc245');
+    container.logs({
+        follow: true,
+        stdout: true,
+        stderr: true,
+        timestamps: true
+    }, (err, stream) => {
+        if (err) {
+            console.error(err);
+            socket.emit('logs', 'An error occurred while fetching the logs.');
+            return;
+        }
 
-        // Listen for data events from the log stream and send the data to the client
-        logStream.on('data', (chunk) => {
-            console.log('Received log data:', chunk.toString('utf8'));
-            socket.emit('logs', chunk.toString('utf8'));
-        });
-
-        // Fetch the logs from the container
-        container.logs({
-            follow: true,
-            stdout: true,
-            stderr: true,
-            timestamps: true
-        }, (err, logData) => {
-            if (err) {
-                console.error(err); // Log the error object to the console
-                // Send an error message to the client if fetching the logs fails
-                socket.emit('logs', 'An error occurred while fetching the logs.');
-                return;
-            }
-
-            // Demultiplex the log data into the log stream
-            container.modem.demuxStream(logData, logStream, logStream);
-            logData.on('end', () => {
-                logStream.end('!stop!');
-            });
-
-            // logStream.on('data', (chunk) => {
-            //     console.log('Log data:', chunk.toString('utf8'));
-            //     socket.emit('logs', chunk.toString('utf8'));
-            //     console.log('Sent logs');
-            // });
-
+        container.modem.demuxStream(stream, logStream, logStream);
+        stream.on('end', () => {
+            logStream.end('!stop!');
         });
     });
 
-    // Log when a user disconnects
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
@@ -115,12 +93,9 @@ io.on('connection', (socket) => {
     socket.on('error', (err) => {
         console.log('Socket error:', err);
     });
-
 });
 
 // Start the server and listen for requests on the specified port
 server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
-
-// Start the server with: node server.js
