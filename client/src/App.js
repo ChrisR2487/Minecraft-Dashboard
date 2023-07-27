@@ -86,7 +86,7 @@ function App() {
             <button onClick={stopServer}>Stop Server</button>
 
             <h2>Logs</h2>
-            <textarea readOnly value={logsRef.current} style={{ width: '100%', height: '200px' }} />
+            <textarea readOnly value={logsRef.current} style={{ width: '75%', height: '200px' }} />
         </div>
     );
 }
