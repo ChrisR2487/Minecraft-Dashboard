@@ -5,12 +5,15 @@ const cors = require('cors');
 const http = require('http');
 const { Server } = require('socket.io');
 const stream = require('stream');
+const fs = require('fs');
+const yaml = require('js-yaml');
 
 const docker = new Docker();
 const app = express();
 const server = http.createServer(app);
 const port = 3000;
 
+app.use(express.json());
 app.use(cors());
 
 // Set up a new Socket.IO server with CORS enabled for the React app's origin
@@ -23,7 +26,6 @@ const io = new Server(server, {
 
 // Define the /start route
 app.get('/start', async (req, res) => {
-    // Get the Docker container
     const container = docker.getContainer('8cbc8b8cc245');
 
     // Start the container
@@ -35,7 +37,6 @@ app.get('/start', async (req, res) => {
 
 // Define the /stop route
 app.get('/stop', async (req, res) => {
-    // Get the Docker container
     const container = docker.getContainer('8cbc8b8cc245');
 
     // Stop the container
@@ -47,7 +48,6 @@ app.get('/stop', async (req, res) => {
 
 // Define the /status route
 app.get('/status', async (req, res) => {
-    // Get the Docker container
     const container = docker.getContainer('8cbc8b8cc245');
 
     // Inspect the container to get its current state
@@ -56,6 +56,35 @@ app.get('/status', async (req, res) => {
     // Send a response back to the client with the current status of the server
     res.json({ status: data.State.Running ? "Running" : "Stopped" });
 });
+
+const { spawn } = require('child_process');
+
+app.post('/deploy', (req, res) => {
+  // the name to give to the deployment and the chart to use
+  const name = 'my-minecraft-server';
+  const chart = 'itzg/minecraft';
+
+  const helmInstall = spawn('helm', ['install', name, chart]);
+
+  helmInstall.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  helmInstall.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  helmInstall.on('close', (code) => {
+    if (code !== 0) {
+      console.log(`helm install process exited with code ${code}`);
+      res.status(500).send('Error deploying pod');
+    } else {
+      console.log('Pod deployed successfully');
+      res.send('Pod deployed successfully');
+    }
+  });
+});
+
 
 // Listen for connections from clients
 io.on('connection', (socket) => {

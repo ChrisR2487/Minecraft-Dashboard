@@ -73,17 +73,31 @@ function App() {
         alert('Server stopped');
     };
 
+    const deployContainer = () => {
+        const imageName = 'itzg/minecraft-server';
+        const environmentVariables = {
+          'EULA': 'TRUE',
+          // Add any other environment variables here
+        };
+        axios.post('http://localhost:3000/deploy', { image: imageName, env: environmentVariables })
+          .then((response) => {
+            console.log(response.data);
+          })
+          .catch((error) => {
+            console.error('Error deploying container:', error);
+          });
+      };
+
     // Render the component
     return (
         <div>
-            {/* Display the current server status */}
             <p>Server Status: {status}</p>
 
-            {/* When the "Start Server" button is clicked, call the startServer function */}
             <button onClick={startServer}>Start Server</button>
 
-            {/* When the "Stop Server" button is clicked, call the stopServer function */}
             <button onClick={stopServer}>Stop Server</button>
+
+            <button onClick={deployContainer}>Deploy Container</button>
 
             <h2>Logs</h2>
             <textarea readOnly value={logsRef.current} style={{ width: '100%', height: '200px' }} />
