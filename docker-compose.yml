@@ -1,0 +1,47 @@
+version: "3.8"
+
+# Video: https://www.youtube.com/watch?v=f1cGEr9L67Y
+# To start container run: docker-compose up -d --force-recreate
+# Server IP: IPv4 address of the host machine running the container (ipconfig for windows, curl ifconfig.me for linux) and port 25565
+
+services:
+  # Container name
+  minecraft-server:
+    # Pulling MC Server docker image.
+    # Image tag defines what Java version the server will run on. (For Forge versions less than 1.18 must use java8)
+    image: itzg/minecraft-server
+    # Mounting volumes to persist data
+    volumes:
+      - ./minecraft-server/minecraft-data:/data
+      - ./minecraft-server/minecraft-config:/config
+
+    ports:
+      - 25565:25565
+    # Addtional variables: https://docker-minecraft-server.readthedocs.io/en/latest/variables/
+    environment:
+      EULA: "true"
+      # Types: https://docker-minecraft-server.readthedocs.io/en/latest/types-and-platforms/ #
+      TYPE: "VANILLA"
+      MEMORY: "3G"
+      ENABLE_ROLLING_LOGS: "true"
+      TZ: "America/New_York"
+
+      # Whitelist/OPS
+      ENABLE_WHITELIST: "true"
+      ENFORCE_WHITELIST: "true"
+      WHITELIST_FILE: /config/whitelist.json
+      OPS_FILE: /config/ops.json
+
+      # Enfroce regen of whitelist and ops file
+      OVERRIDE_WHITELIST: "true"
+      OVERRIDE_OPS: "true"
+
+      EXEC_DIRECTLY: "true"
+      DEBUG: "true"
+    #tty: Needs to be false for logs to be displayed in web app
+    tty: false
+    stdin_open: true
+    restart: unless-stopped
+volumes:
+  minecraft-data:
+    external: true
