@@ -28,7 +28,7 @@ app.get('/start', (req, res) => {
     compose.upAll({
         cwd: path.dirname(require.main.filename),
         log: true,
-        commandOptions: ['-d', '--force-recreate']
+        commandOptions: ['-d']
     })
     .then(() => {
         console.log('Successfully started the service.');
@@ -53,6 +53,23 @@ app.get('/stop', (req, res) => {
     .catch(err => {
         console.error('Failed to stop the service.', err);
         res.status(500).send(`Failed to stop the server: ${err.message}`);
+    });
+});
+
+// Define the /start route
+app.get('/restart', (req, res) => {
+    compose.upAll({
+        cwd: path.dirname(require.main.filename),
+        log: true,
+        commandOptions: ['-d', '--force-recreate']
+    })
+    .then(() => {
+        console.log('Successfully restarted the service.');
+        res.status(200).send('Server restarted successfully.');
+    })
+    .catch(err => {
+        console.error('Failed to restart the service.', err);
+        res.status(500).send(`Failed to restart the server: ${err.message}`);
     });
 });
 

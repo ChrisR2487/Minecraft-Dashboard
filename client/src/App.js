@@ -60,7 +60,6 @@ function App() {
         // Send a GET request to the /start route
         await axios.get('http://localhost:3000/start');
 
-        // Display an alert to the user
         alert('Server started');
     };
 
@@ -69,29 +68,34 @@ function App() {
         // Send a GET request to the /stop route
         await axios.get('http://localhost:3000/stop');
 
-        // Display an alert to the user
         alert('Server stopped');
+    };
+
+    // Define the function to stop the server
+    const restartServer = async () => {
+        // Send a GET request to the /restart route
+        await axios.get('http://localhost:3000/restart');
+
+        alert('Server restarted');
     };
 
     // Render the component
     return (
         <div>
-            {/* Display the current server status */}
             <p>Server Status: {status}</p>
 
-            {/* When the "Start Server" button is clicked, call the startServer function */}
             <button onClick={startServer}>Start Server</button>
 
-            {/* When the "Stop Server" button is clicked, call the stopServer function */}
             <button onClick={stopServer}>Stop Server</button>
 
+            <button onClick={restartServer}>Restart Server</button>
+
             <h2>Logs</h2>
-            <textarea readOnly value={logsRef.current} style={{ width: '100%', height: '200px' }} />
+            <textarea readOnly value={logsRef.current} style={{ width: '100%', height: '600px' }} />
         </div>
     );
 }
 
-// Export the component
 export default App;
 
 // Start the client with: npm start
