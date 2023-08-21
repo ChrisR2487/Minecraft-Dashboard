@@ -23,7 +23,6 @@ const io = new Server(server, {
     }
 });
 
-// Define the /start route
 app.get('/start', (req, res) => {
     compose.upAll({
         cwd: path.dirname(require.main.filename),
@@ -40,7 +39,6 @@ app.get('/start', (req, res) => {
     });
 });
 
-// Define the /stop route
 app.get('/stop', (req, res) => {
     compose.down({
         cwd: path.dirname(require.main.filename),
@@ -56,7 +54,6 @@ app.get('/stop', (req, res) => {
     });
 });
 
-// Define the /start route
 app.get('/restart', (req, res) => {
     compose.upAll({
         cwd: path.dirname(require.main.filename),
@@ -73,10 +70,8 @@ app.get('/restart', (req, res) => {
     });
 });
 
-// Define the /status route
 app.get('/status', async (req, res) => {
     try {
-        // Get the status of all services
         const servicesStatus = await compose.ps({ cwd: path.dirname(require.main.filename) });
 
         // Split the output into lines
@@ -85,27 +80,21 @@ app.get('/status', async (req, res) => {
         // Filter the lines to get the one corresponding to the minecraft service
         const minecraftServiceLine = lines.find(line => line.includes('minecraft-server'));
 
-        if (minecraftServiceLine) {
-            // Split the line using two or more spaces as the delimiter
-            const columns = minecraftServiceLine.split(/ {2,}/);
-
-            // The status should be the column containing 'Up' or 'Exit'
-            const status = columns.find(col => col.startsWith('Up') || col.startsWith('Exit'));
-
-            // Return the status to the client
-            res.json({ status: status && status.startsWith('Up') ? 'Running' : 'Stopped' });
-        } else {
-            // If the service isn't found, indicate that it's not running
+        if (!minecraftServiceLine) {
             res.json({ status: 'Not Running' });
         }
+        // Split the line using two or more spaces as the delimiter
+        const columns = minecraftServiceLine.split(/ {2,}/);
+
+        // The status should be the column containing 'Up' or 'Exit'
+        const status = columns.find(col => col.startsWith('Up') || col.startsWith('Exit'));
+
+        res.json({ status: status && status.startsWith('Up') ? 'Running' : 'Stopped' });
     } catch (err) {
         console.error('Error fetching service status:', err);
         res.status(500).send('Internal Server Error');
     }
 });
-
-
-
 
 // Listen for connections from clients
 io.on('connection', async (socket) => {
