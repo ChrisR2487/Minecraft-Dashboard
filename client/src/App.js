@@ -72,21 +72,23 @@ function App() {
     };
 
     return (
-        <div>
-            <p>Server Status: {status}</p>
+        <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
+            <p className="text-2xl font-semibold mb-4">Server Status: <span className="font-normal">{status}</span></p>
 
-            <button onClick={startServer}>Start Server</button>
+            <div className="flex space-x-4 mb-8">
+                <button onClick={startServer} className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded">Start Server</button>
 
-            <button onClick={stopServer}>Stop Server</button>
+                <button onClick={stopServer} className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">Stop Server</button>
 
-            <button onClick={restartServer}>Restart Server</button>
+                <button onClick={restartServer} className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">Restart Server</button>
+            </div>
 
-            <h2>Logs</h2>
-            <textarea readOnly value={logsRef.current} style={{ width: '100%', height: '600px' }} />
+            <h2 className="text-xl font-semibold mb-4">Logs</h2>
+            <textarea readOnly value={logsRef.current} className="w-full h-96 p-4 bg-white rounded shadow" />
         </div>
     );
 }
 
 export default App;
 
-// Start the client with: npm start
+// Start the client with: npm run start
