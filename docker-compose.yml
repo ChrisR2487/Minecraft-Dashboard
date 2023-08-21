@@ -1,7 +1,5 @@
 version: "3.8"
 
-# Video: https://www.youtube.com/watch?v=f1cGEr9L67Y
-# To start container run: docker-compose up -d --force-recreate
 # Server IP: IPv4 address of the host machine running the container (ipconfig for windows, curl ifconfig.me for linux) and port 25565
 
 services:
