@@ -13,10 +13,8 @@ function App() {
     // Use the useEffect hook to fetch the server status every 5 seconds
     useEffect(() => {
         const interval = setInterval(async () => {
-            // Send a GET request to the /status route
             const response = await axios.get('http://localhost:3000/status');
 
-            // Update the status state with the status received from the server
             setStatus(response.data.status);
         }, 3001);
 
@@ -55,31 +53,24 @@ function App() {
         return () => socket.disconnect();
     }, []);
 
-    // Define the function to start the server
     const startServer = async () => {
-        // Send a GET request to the /start route
         await axios.get('http://localhost:3000/start');
 
         alert('Server started');
     };
 
-    // Define the function to stop the server
     const stopServer = async () => {
-        // Send a GET request to the /stop route
         await axios.get('http://localhost:3000/stop');
 
         alert('Server stopped');
     };
 
-    // Define the function to stop the server
     const restartServer = async () => {
-        // Send a GET request to the /restart route
         await axios.get('http://localhost:3000/restart');
 
         alert('Server restarted');
     };
 
-    // Render the component
     return (
         <div>
             <p>Server Status: {status}</p>
